@@ -32,7 +32,7 @@ public static class ProjectGeneration
         sb.AppendLine("<Project Sdk=\"Microsoft.NET.Sdk\">");
         
         sb.AppendLine("  <PropertyGroup>");
-        sb.AppendLine("    <TargetFramework>net471</TargetFramework>");
+        sb.AppendLine("    <TargetFramework>netstandard2.1</TargetFramework>");
         sb.AppendLine("    <OutputType>Library</OutputType>");
         sb.AppendLine($"    <AssemblyName>{assembly.name}</AssemblyName>");
         sb.AppendLine("    <OutputPath>Temp\\bin\\Debug\\</OutputPath>");
@@ -46,9 +46,11 @@ public static class ProjectGeneration
         
         string unityEnginePath = Path.Combine(EditorApplication.applicationContentsPath, "Managed", "UnityEngine.dll");
         string unityEditorPath = Path.Combine(EditorApplication.applicationContentsPath, "Managed", "UnityEditor.dll");
+        string coreModulePath = Path.Combine(EditorApplication.applicationContentsPath, "Managed", "UnityEngine", "UnityEngine.CoreModule.dll");
 
         if (!references.Any(r => r.EndsWith("UnityEngine.dll"))) references.Add(unityEnginePath);
         if (!references.Any(r => r.EndsWith("UnityEditor.dll"))) references.Add(unityEditorPath);
+        if (!references.Any(r => r.EndsWith("UnityEngine.CoreModule.dll")) && File.Exists(coreModulePath)) references.Add(coreModulePath);
 
         foreach (var reference in references)
         {
