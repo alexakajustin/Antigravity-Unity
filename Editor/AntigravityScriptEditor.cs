@@ -13,7 +13,8 @@ public class AntigravityScriptEditor : IExternalCodeEditor
     const string EditorName = "Antigravity";
     static readonly string[] KnownPaths =
     {
-        "AppData/Local/Programs/Antigravity.exe",
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Antigravity", "Antigravity.exe"),
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Antigravity.exe"),
         "/Applications/Antigravity.app/Contents/MacOS/Antigravity"
     };
 
