@@ -23,6 +23,7 @@ public static class ProjectGeneration
     public static void SyncIfNeeded(string[] addedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths, string[] importedAssets)
     {
         Sync();
+        // Force sync logic
     }
 
     private static void GenerateCsproj(Assembly assembly)
@@ -53,25 +54,24 @@ public static class ProjectGeneration
         if (!references.Any(r => r.EndsWith("UnityEngine.dll"))) 
         {
              references.Add(unityEnginePath);
-             Debug.Log($"[Antigravity] Forced UnityEngine: {unityEnginePath}");
         }
         if (!references.Any(r => r.EndsWith("UnityEditor.dll"))) 
         {
              references.Add(unityEditorPath);
-             Debug.Log($"[Antigravity] Forced UnityEditor: {unityEditorPath}");
         }
         if (!references.Any(r => r.EndsWith("UnityEngine.CoreModule.dll")) && File.Exists(coreModulePath)) 
         {
              references.Add(coreModulePath);
-             Debug.Log($"[Antigravity] Forced CoreModule: {coreModulePath}");
-        }
-        else if (!File.Exists(coreModulePath))
-        {
-             Debug.LogWarning($"[Antigravity] CoreModule not found at: {coreModulePath}");
         }
 
         foreach (var reference in references)
         {
+            // Debug Log specific to UnityEngine/CoreModule to verify what path is being used
+            if (reference.Contains("UnityEngine") || reference.Contains("UnityEditor"))
+            {
+                Debug.Log($"[Antigravity] Adding Reference: {reference}");
+            }
+
             sb.AppendLine($"    <Reference Include=\"{Path.GetFileNameWithoutExtension(reference)}\">");
             sb.AppendLine($"      <HintPath>{reference}</HintPath>");
             sb.AppendLine("    </Reference>");
