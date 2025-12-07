@@ -42,7 +42,15 @@ public static class ProjectGeneration
         sb.AppendLine("  </PropertyGroup>");
 
         sb.AppendLine("  <ItemGroup>");
-        foreach (var reference in assembly.compiledAssemblyReferences)
+        var references = new HashSet<string>(assembly.compiledAssemblyReferences);
+        
+        string unityEnginePath = Path.Combine(EditorApplication.applicationContentsPath, "Managed", "UnityEngine.dll");
+        string unityEditorPath = Path.Combine(EditorApplication.applicationContentsPath, "Managed", "UnityEditor.dll");
+
+        if (!references.Any(r => r.EndsWith("UnityEngine.dll"))) references.Add(unityEnginePath);
+        if (!references.Any(r => r.EndsWith("UnityEditor.dll"))) references.Add(unityEditorPath);
+
+        foreach (var reference in references)
         {
             sb.AppendLine($"    <Reference Include=\"{Path.GetFileNameWithoutExtension(reference)}\">");
             sb.AppendLine($"      <HintPath>{reference}</HintPath>");
