@@ -14,7 +14,7 @@ Integrates **Antigravity** as an external script editor for Unity, providing sea
 1.  Open Unity.
 2.  Go to **Window > Package Manager**.
 3.  Click the **+** icon > **Add package from git URL...**.
-4.  Enter the URL of this repository: `https://github.com/prithvi-bharadwaj/Antigravity-IDE.git`
+4.  Enter the URL of this repository: `https://github.com/alexakajustin/Antigravity-Unity.git`
 
 ### via Disk
 1.  Open **Window > Package Manager**.
@@ -24,9 +24,9 @@ Integrates **Antigravity** as an external script editor for Unity, providing sea
 ## Usage
 Once installed, go to **Unity > Preferences > External Tools**.
 - **External Script Editor**: Select **Antigravity**.
-- If it doesn't appear automatically, ensure Antigravity is installed in `/Applications/Antigravity.app`.
+- If it doesn't appear automatically, ensure Antigravity is installed in `/Antigravity.exe`.
 
 ## Troubleshooting
-- **Editor not found**: The package looks for `/Applications/Antigravity.app`. If installed elsewhere, ensure the path is correct or manually select the executable.
+- **Editor not found**: The package looks for `/Antigravity.exe`. If installed elsewhere, ensure the path is correct or manually select the executable.
 - **No Intellisense**: Ensure `Generate .csproj files` is checked in Unity Preferences.
 # Antigravity-Unity

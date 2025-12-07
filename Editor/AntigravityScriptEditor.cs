@@ -93,8 +93,10 @@ public class AntigravityScriptEditor : IExternalCodeEditor
         else
         {
             // Open the root directory, then the file
+            // Open the specific solution file automatically
             string projectRoot = Directory.GetParent(Application.dataPath).FullName;
-            arguments = $"\"{projectRoot}\" \"{filePath}\"";
+            string solutionFile = Path.Combine(projectRoot, Path.GetFileName(projectRoot) + ".sln");
+            arguments = $"\"{solutionFile}\" \"{filePath}\"";
         }
 
         try
