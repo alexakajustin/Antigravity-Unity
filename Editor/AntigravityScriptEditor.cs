@@ -93,7 +93,7 @@ public class AntigravityScriptEditor : IExternalCodeEditor
         }
         else
         {
-            arguments = $"\"{filePath}:{line}:{column}\"";
+            arguments = $"\"{filePath}\"";
         }
 
         try
