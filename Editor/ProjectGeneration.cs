@@ -33,7 +33,6 @@ public static class ProjectGeneration
         
         sb.AppendLine("  <PropertyGroup>");
         sb.AppendLine("    <TargetFramework>net471</TargetFramework>");
-        sb.AppendLine("    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>");
         sb.AppendLine("    <OutputType>Library</OutputType>");
         sb.AppendLine($"    <AssemblyName>{assembly.name}</AssemblyName>");
         sb.AppendLine("    <OutputPath>Temp\\bin\\Debug\\</OutputPath>");
