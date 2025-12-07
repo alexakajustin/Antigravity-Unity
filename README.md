@@ -25,7 +25,7 @@ Once installed, go to **Unity > Preferences > External Tools**.
 - **No Intellisense**: Ensure `Generate .csproj files` is checked in Unity Preferences.
 
 ## IMPORTANT NOTE!!!!
-- **YOU NEED TO INSTALL OMNISHARP SERVER AND KEEP THE DIRECTORY SET ON 'PROEJCT_NAME.sln'. TO DO THAT, GO ON EXTENSIONS AND SEARCH C# (https://marketplace.visualstudio.com/?itemName=muhammad-sammy.csharp)**
+- **YOU NEED TO INSTALL OMNISHARP SERVER AND KEEP THE DIRECTORY SET ON 'PROEJCT_NAME.sln' IN ORDER FOR THE AUTOCOMPLETE TO WORK. TO DO THAT, GO ON EXTENSIONS AND SEARCH C# (https://marketplace.visualstudio.com/?itemName=muhammad-sammy.csharp) IT IS THE WHITE AND GREEN ICON ONE WITH C# IN THE MIDDLE**
 # Antigravity-Unity
 
 
