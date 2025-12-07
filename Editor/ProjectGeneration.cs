@@ -23,7 +23,6 @@ public static class ProjectGeneration
     public static void SyncIfNeeded(string[] addedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths, string[] importedAssets)
     {
         Sync();
-        // Force sync logic
     }
 
     private static void GenerateCsproj(Assembly assembly)
@@ -34,7 +33,7 @@ public static class ProjectGeneration
         sb.AppendLine("<Project Sdk=\"Microsoft.NET.Sdk\">");
         
         sb.AppendLine("  <PropertyGroup>");
-        sb.AppendLine("    <TargetFramework>netstandard2.1</TargetFramework>");
+        sb.AppendLine("    <TargetFramework>net471</TargetFramework>");
         sb.AppendLine("    <OutputType>Library</OutputType>");
         sb.AppendLine($"    <AssemblyName>{assembly.name}</AssemblyName>");
         sb.AppendLine("    <OutputPath>Temp\\bin\\Debug\\</OutputPath>");
@@ -42,9 +41,15 @@ public static class ProjectGeneration
         sb.AppendLine($"    <DefineConstants>{string.Join(";", assembly.defines)}</DefineConstants>");
         sb.AppendLine("    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>");
         sb.AppendLine("    <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>");
+        sb.AppendLine("    <NoStdLib>true</NoStdLib>");
         sb.AppendLine("  </PropertyGroup>");
 
         sb.AppendLine("  <ItemGroup>");
+        sb.AppendLine("    <Reference Include=\"mscorlib\" />");
+        sb.AppendLine("    <Reference Include=\"System\" />");
+        sb.AppendLine("    <Reference Include=\"System.Core\" />");
+        sb.AppendLine("    <Reference Include=\"System.Xml\" />");
+        
         var references = new HashSet<string>(assembly.compiledAssemblyReferences);
         
         string unityEnginePath = Path.Combine(EditorApplication.applicationContentsPath, "Managed", "UnityEngine.dll");
@@ -66,7 +71,6 @@ public static class ProjectGeneration
 
         foreach (var reference in references)
         {
-            // Debug Log specific to UnityEngine/CoreModule to verify what path is being used
             if (reference.Contains("UnityEngine") || reference.Contains("UnityEditor"))
             {
                 Debug.Log($"[Antigravity] Adding Reference: {reference}");
