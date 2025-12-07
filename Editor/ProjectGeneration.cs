@@ -28,7 +28,7 @@ public static class ProjectGeneration
 
     public static void Sync()
     {
-        var assemblies = CompilationPipeline.GetAssemblies();
+        var assemblies = CompilationPipeline.GetAssemblies(AssembliesType.Editor);
         
         // Scan for all available Unity DLLs once to be efficient
         var allUnityDlls = GetAllUnityDllPaths();
@@ -115,7 +115,7 @@ public static class ProjectGeneration
         foreach (var reference in references)
         {
             sb.AppendLine($"    <Reference Include=\"{Path.GetFileNameWithoutExtension(reference)}\">");
-            sb.AppendLine($"      <HintPath>{reference}</HintPath>");
+            sb.AppendLine($"      <HintPath>{reference.Replace("/", "\\")}</HintPath>");
             sb.AppendLine("    </Reference>");
         }
         sb.AppendLine("  </ItemGroup>");
