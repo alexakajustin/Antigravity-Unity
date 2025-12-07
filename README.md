@@ -29,4 +29,9 @@ Once installed, go to **Unity > Preferences > External Tools**.
 ## Troubleshooting
 - **Editor not found**: The package looks for `/Antigravity.exe`. If installed elsewhere, ensure the path is correct or manually select the executable.
 - **No Intellisense**: Ensure `Generate .csproj files` is checked in Unity Preferences.
+
+## IMPORTANT NOTE!!!!
+- **YOU NEED TO INSTALL OMNISHARP SERVER AND KEEP THE DIRECTORY SET ON 'PROEJCT_NAME.sln'. TO DO THAT, GO ON EXTENSIONS AND SEARCH C# (https://marketplace.visualstudio.com/?itemName=muhammad-sammy.csharp)**
 # Antigravity-Unity
+
+
