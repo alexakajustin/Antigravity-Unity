@@ -42,6 +42,8 @@ public static class ProjectGeneration
         sb.AppendLine($"    <AssemblyName>{assembly.name}</AssemblyName>");
         sb.AppendLine("    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>");
         sb.AppendLine("    <FileAlignment>512</FileAlignment>");
+        sb.AppendLine("    <LangVersion>latest</LangVersion>");
+        sb.AppendLine($"    <DefineConstants>{string.Join(";", assembly.defines)}</DefineConstants>");
 
         sb.AppendLine("  </PropertyGroup>");
 
