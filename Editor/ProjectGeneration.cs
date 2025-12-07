@@ -86,8 +86,7 @@ public static class ProjectGeneration
 
     private static void GenerateSolution(Assembly[] assemblies)
     {
-        // HARDCODED: Antigravity.sln
-        string solutionPath = Path.Combine(Directory.GetCurrentDirectory(), "Antigravity.sln");
+        string solutionPath = Path.Combine(Directory.GetCurrentDirectory(), $"{Path.GetFileName(Directory.GetCurrentDirectory())}.sln");
         var sb = new StringBuilder();
         sb.AppendLine("Microsoft Visual Studio Solution File, Format Version 12.00");
         sb.AppendLine("# Visual Studio 15");

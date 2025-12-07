@@ -84,20 +84,17 @@ public class AntigravityScriptEditor : IExternalCodeEditor
     {
         string installation = CodeEditor.CurrentEditorInstallation;
         
-        // Ensure we pass the explicit solution file
-        string projectRoot = Directory.GetParent(Application.dataPath).FullName;
-        string solutionFile = Path.Combine(projectRoot, "Antigravity.sln");
-        
+        // Use standard directory based opening
         string arguments;
         if (Directory.Exists(filePath))
         {
-             // Opening a directory? Open the solution instead to enforce context
-             arguments = $"\"{solutionFile}\"";
+            arguments = $"\"{filePath}\"";
         }
         else
         {
-             // Opening a file? Open the solution AND the file
-             arguments = $"\"{solutionFile}\" \"{filePath}\"";
+            // Open the root directory, then the file
+            string projectRoot = Directory.GetParent(Application.dataPath).FullName;
+            arguments = $"\"{projectRoot}\" \"{filePath}\"";
         }
 
         try
