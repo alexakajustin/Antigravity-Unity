@@ -17,6 +17,7 @@ public static class ProjectGeneration
             GenerateCsproj(assembly);
         }
         GenerateSolution(assemblies);
+        Debug.Log($"[Antigravity] Project generation complete. Assets path: {EditorApplication.applicationContentsPath}");
     }
 
     public static void SyncIfNeeded(string[] addedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths, string[] importedAssets)
@@ -39,6 +40,7 @@ public static class ProjectGeneration
         sb.AppendLine("    <LangVersion>latest</LangVersion>");
         sb.AppendLine($"    <DefineConstants>{string.Join(";", assembly.defines)}</DefineConstants>");
         sb.AppendLine("    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>");
+        sb.AppendLine("    <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>");
         sb.AppendLine("  </PropertyGroup>");
 
         sb.AppendLine("  <ItemGroup>");
@@ -48,9 +50,25 @@ public static class ProjectGeneration
         string unityEditorPath = Path.Combine(EditorApplication.applicationContentsPath, "Managed", "UnityEditor.dll");
         string coreModulePath = Path.Combine(EditorApplication.applicationContentsPath, "Managed", "UnityEngine", "UnityEngine.CoreModule.dll");
 
-        if (!references.Any(r => r.EndsWith("UnityEngine.dll"))) references.Add(unityEnginePath);
-        if (!references.Any(r => r.EndsWith("UnityEditor.dll"))) references.Add(unityEditorPath);
-        if (!references.Any(r => r.EndsWith("UnityEngine.CoreModule.dll")) && File.Exists(coreModulePath)) references.Add(coreModulePath);
+        if (!references.Any(r => r.EndsWith("UnityEngine.dll"))) 
+        {
+             references.Add(unityEnginePath);
+             Debug.Log($"[Antigravity] Forced UnityEngine: {unityEnginePath}");
+        }
+        if (!references.Any(r => r.EndsWith("UnityEditor.dll"))) 
+        {
+             references.Add(unityEditorPath);
+             Debug.Log($"[Antigravity] Forced UnityEditor: {unityEditorPath}");
+        }
+        if (!references.Any(r => r.EndsWith("UnityEngine.CoreModule.dll")) && File.Exists(coreModulePath)) 
+        {
+             references.Add(coreModulePath);
+             Debug.Log($"[Antigravity] Forced CoreModule: {coreModulePath}");
+        }
+        else if (!File.Exists(coreModulePath))
+        {
+             Debug.LogWarning($"[Antigravity] CoreModule not found at: {coreModulePath}");
+        }
 
         foreach (var reference in references)
         {
