@@ -17,7 +17,7 @@ public static class ProjectGeneration
             GenerateCsproj(assembly);
         }
         GenerateSolution(assemblies);
-        Debug.Log($"[Antigravity] Project generation complete. Assets path: {EditorApplication.applicationContentsPath}");
+        Debug.Log($"[Antigravity] Project generation complete.");
     }
 
     public static void SyncIfNeeded(string[] addedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths, string[] importedAssets)
@@ -33,7 +33,7 @@ public static class ProjectGeneration
         sb.AppendLine("<Project Sdk=\"Microsoft.NET.Sdk\">");
         
         sb.AppendLine("  <PropertyGroup>");
-        sb.AppendLine("    <TargetFramework>net471</TargetFramework>");
+        sb.AppendLine("    <TargetFramework>netstandard2.1</TargetFramework>");
         sb.AppendLine("    <OutputType>Library</OutputType>");
         sb.AppendLine($"    <AssemblyName>{assembly.name}</AssemblyName>");
         sb.AppendLine("    <OutputPath>Temp\\bin\\Debug\\</OutputPath>");
@@ -41,41 +41,24 @@ public static class ProjectGeneration
         sb.AppendLine($"    <DefineConstants>{string.Join(";", assembly.defines)}</DefineConstants>");
         sb.AppendLine("    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>");
         sb.AppendLine("    <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>");
-        sb.AppendLine("    <NoStdLib>true</NoStdLib>");
         sb.AppendLine("  </PropertyGroup>");
 
         sb.AppendLine("  <ItemGroup>");
-        sb.AppendLine("    <Reference Include=\"mscorlib\" />");
-        sb.AppendLine("    <Reference Include=\"System\" />");
-        sb.AppendLine("    <Reference Include=\"System.Core\" />");
-        sb.AppendLine("    <Reference Include=\"System.Xml\" />");
         
+        // Use Unity's reported references
         var references = new HashSet<string>(assembly.compiledAssemblyReferences);
         
+        // Ensure essential Unity assemblies are present if missing from the report
         string unityEnginePath = Path.Combine(EditorApplication.applicationContentsPath, "Managed", "UnityEngine.dll");
         string unityEditorPath = Path.Combine(EditorApplication.applicationContentsPath, "Managed", "UnityEditor.dll");
         string coreModulePath = Path.Combine(EditorApplication.applicationContentsPath, "Managed", "UnityEngine", "UnityEngine.CoreModule.dll");
 
-        if (!references.Any(r => r.EndsWith("UnityEngine.dll"))) 
-        {
-             references.Add(unityEnginePath);
-        }
-        if (!references.Any(r => r.EndsWith("UnityEditor.dll"))) 
-        {
-             references.Add(unityEditorPath);
-        }
-        if (!references.Any(r => r.EndsWith("UnityEngine.CoreModule.dll")) && File.Exists(coreModulePath)) 
-        {
-             references.Add(coreModulePath);
-        }
+        if (!references.Any(r => r.EndsWith("UnityEngine.dll"))) references.Add(unityEnginePath);
+        if (!references.Any(r => r.EndsWith("UnityEditor.dll"))) references.Add(unityEditorPath);
+        if (!references.Any(r => r.EndsWith("UnityEngine.CoreModule.dll")) && File.Exists(coreModulePath)) references.Add(coreModulePath);
 
         foreach (var reference in references)
         {
-            if (reference.Contains("UnityEngine") || reference.Contains("UnityEditor"))
-            {
-                Debug.Log($"[Antigravity] Adding Reference: {reference}");
-            }
-
             sb.AppendLine($"    <Reference Include=\"{Path.GetFileNameWithoutExtension(reference)}\">");
             sb.AppendLine($"      <HintPath>{reference}</HintPath>");
             sb.AppendLine("    </Reference>");
