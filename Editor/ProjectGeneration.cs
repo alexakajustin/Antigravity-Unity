@@ -40,15 +40,15 @@ public static class ProjectGeneration
         sb.AppendLine("    <LangVersion>latest</LangVersion>");
         sb.AppendLine($"    <DefineConstants>{string.Join(";", assembly.defines)}</DefineConstants>");
         sb.AppendLine("    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>");
+        sb.AppendLine("    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>");
+        sb.AppendLine("    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>");
         sb.AppendLine("    <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>");
         sb.AppendLine("  </PropertyGroup>");
 
         sb.AppendLine("  <ItemGroup>");
         
-        // Use Unity's reported references
         var references = new HashSet<string>(assembly.compiledAssemblyReferences);
         
-        // Ensure essential Unity assemblies are present if missing from the report
         string unityEnginePath = Path.Combine(EditorApplication.applicationContentsPath, "Managed", "UnityEngine.dll");
         string unityEditorPath = Path.Combine(EditorApplication.applicationContentsPath, "Managed", "UnityEditor.dll");
         string coreModulePath = Path.Combine(EditorApplication.applicationContentsPath, "Managed", "UnityEngine", "UnityEngine.CoreModule.dll");
