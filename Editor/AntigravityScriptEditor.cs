@@ -93,7 +93,7 @@ public class AntigravityScriptEditor : IExternalCodeEditor
         }
         else
         {
-            arguments = $"\"{filePath}\"";
+            arguments = $"\"{Directory.GetParent(Application.dataPath)}\" \"{filePath}\"";
         }
 
         try
