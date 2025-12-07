@@ -73,7 +73,11 @@ public class AntigravityScriptEditor : IExternalCodeEditor
     {
         // Custom GUI for Preferences > External Tools
         GUILayout.Label("Antigravity IDE Settings", EditorStyles.boldLabel);
-        // Add settings here if needed
+        
+        if (GUILayout.Button("Regenerate Project Files"))
+        {
+            SyncAll();
+        }
     }
 
     public bool OpenProject(string filePath, int line, int column)
