@@ -2,12 +2,6 @@
 
 Integrates **Antigravity** as an external script editor for Unity, providing seamless file opening and project generation for Intellisense.
 
-## Features
-- **Auto-Discovery**: Automatically detects Antigravity installation on macOS.
-- **Auto-Default**: Attempts to set Antigravity as the default editor upon first load.
-- **Intellisense Support**: Generates `.csproj` and `.sln` files compatible with Antigravity's language server.
-- **Smart Opening**: Opens files at specific lines and columns.
-
 ## Installation
 
 ### via Package Manager (Git URL)
