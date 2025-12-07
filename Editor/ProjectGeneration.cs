@@ -29,24 +29,17 @@ public static class ProjectGeneration
         string projectPath = Path.Combine(Directory.GetCurrentDirectory(), $"{assembly.name}.csproj");
         
         var sb = new StringBuilder();
-        sb.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-        sb.AppendLine("<Project ToolsVersion=\"4.0\" DefaultTargets=\"Build\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
+        sb.AppendLine("<Project Sdk=\"Microsoft.NET.Sdk\">");
         
         sb.AppendLine("  <PropertyGroup>");
-        sb.AppendLine("    <Configuration Condition=\" '$(Configuration)' == '' \">Debug</Configuration>");
-        sb.AppendLine("    <Platform Condition=\" '$(Platform)' == '' \">AnyCPU</Platform>");
-        sb.AppendLine("    <ProductVersion>10.0.20506</ProductVersion>");
-        sb.AppendLine("    <SchemaVersion>2.0</SchemaVersion>");
-        sb.AppendLine($"    <ProjectGuid>{{{GenerateGuid(assembly.name)}}}</ProjectGuid>");
+        sb.AppendLine("    <TargetFramework>net471</TargetFramework>");
+        sb.AppendLine("    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>");
         sb.AppendLine("    <OutputType>Library</OutputType>");
         sb.AppendLine($"    <AssemblyName>{assembly.name}</AssemblyName>");
-        sb.AppendLine("    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>");
-        sb.AppendLine("    <FileAlignment>512</FileAlignment>");
+        sb.AppendLine("    <OutputPath>Temp\\bin\\Debug\\</OutputPath>");
         sb.AppendLine("    <LangVersion>latest</LangVersion>");
         sb.AppendLine($"    <DefineConstants>{string.Join(";", assembly.defines)}</DefineConstants>");
         sb.AppendLine("    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>");
-        sb.AppendLine("    <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>");
-
         sb.AppendLine("  </PropertyGroup>");
 
         sb.AppendLine("  <ItemGroup>");
@@ -68,14 +61,10 @@ public static class ProjectGeneration
         sb.AppendLine("  <ItemGroup>");
         foreach (var refAssembly in assembly.assemblyReferences)
         {
-             sb.AppendLine($"    <ProjectReference Include=\"{refAssembly.name}.csproj\">");
-             sb.AppendLine($"      <Project>{{{GenerateGuid(refAssembly.name)}}}</Project>");
-             sb.AppendLine($"      <Name>{refAssembly.name}</Name>");
-             sb.AppendLine("    </ProjectReference>");
+             sb.AppendLine($"    <ProjectReference Include=\"{refAssembly.name}.csproj\" />");
         }
         sb.AppendLine("  </ItemGroup>");
 
-        sb.AppendLine("  <Import Project=\"$(MSBuildToolsPath)\\Microsoft.CSharp.targets\" />");
         sb.AppendLine("</Project>");
 
         File.WriteAllText(projectPath, sb.ToString());
