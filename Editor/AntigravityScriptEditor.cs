@@ -18,15 +18,31 @@ public class AntigravityScriptEditor : IExternalCodeEditor
         "/Applications/Antigravity.app/Contents/MacOS/Antigravity"
     };
 
+    /// <summary>
+    /// File extensions that Antigravity should open. Everything else (prefabs, scenes,
+    /// materials, animations, etc.) is left to Unity's native asset handling.
+    /// </summary>
+    static readonly HashSet<string> SupportedExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        // Code
+        ".cs", ".js", ".ts", ".boo",
+        // Shaders
+        ".shader", ".compute", ".cginc", ".hlsl", ".glsl", ".cg",
+        // Shader graphs / sub-graphs (text-based)
+        ".shadergraph", ".shadersubgraph",
+        // Data / config
+        ".json", ".xml", ".yaml", ".yml", ".txt", ".md", ".csv", ".tsv",
+        // USS / UXML (UI Toolkit)
+        ".uss", ".uxml",
+        // Assembly definitions
+        ".asmdef", ".asmref",
+        // Miscellaneous text
+        ".cfg", ".ini", ".log", ".rsp", ".editorconfig",
+    };
+
     static AntigravityScriptEditor()
     {
         CodeEditor.Register(new AntigravityScriptEditor());
-        
-        string current = EditorPrefs.GetString("kScriptsDefaultApp");
-        if (IsAntigravityInstalled() && !current.Contains(EditorName))
-        {
-            // Registration handles availability; user preference is respected unless explicitly changed.
-        }
     }
 
     private static bool IsAntigravityInstalled()
@@ -34,14 +50,29 @@ public class AntigravityScriptEditor : IExternalCodeEditor
         return KnownPaths.Any(p => File.Exists(p) || Directory.Exists(p));
     }
 
+    /// <summary>
+    /// Resolves the actual executable inside a macOS .app bundle.
+    /// </summary>
     private static string GetExecutablePath(string path)
     {
-        if (path.EndsWith(".exe"))
+        if (path.EndsWith(".app"))
         {
             string executable = Path.Combine(path, "Contents", "MacOS", "Antigravity");
             return File.Exists(executable) ? executable : path;
         }
         return path;
+    }
+
+    /// <summary>
+    /// Returns true if the given file path is a code/text file that Antigravity should handle.
+    /// </summary>
+    private static bool IsSupportedFile(string filePath)
+    {
+        if (string.IsNullOrEmpty(filePath))
+            return false;
+
+        string ext = Path.GetExtension(filePath);
+        return !string.IsNullOrEmpty(ext) && SupportedExtensions.Contains(ext);
     }
 
     public CodeEditor.Installation[] Installations
@@ -82,9 +113,16 @@ public class AntigravityScriptEditor : IExternalCodeEditor
 
     public bool OpenProject(string filePath, int line, int column)
     {
+        // Only handle code / text files. Return false for Unity-native assets
+        // (.prefab, .unity, .asset, .mat, .anim, .controller, .png, etc.)
+        // so Unity opens them with its own editors.
+        if (!string.IsNullOrEmpty(filePath) && !Directory.Exists(filePath) && !IsSupportedFile(filePath))
+        {
+            return false;
+        }
+
         string installation = CodeEditor.CurrentEditorInstallation;
         
-        // Use standard directory based opening
         string arguments;
         if (Directory.Exists(filePath))
         {
@@ -92,8 +130,7 @@ public class AntigravityScriptEditor : IExternalCodeEditor
         }
         else
         {
-            // Open the root directory, then the file
-            // Open the root directory, then the file
+            // Open the project root directory alongside the specific file
             string projectRoot = Directory.GetParent(Application.dataPath).FullName;
             arguments = $"\"{projectRoot}\" \"{filePath}\"";
         }
@@ -152,3 +189,4 @@ public class AntigravityScriptEditor : IExternalCodeEditor
         return false;
     }
 }
+
