@@ -10,11 +10,13 @@ using UnityEngine;
 [InitializeOnLoad]
 public class AntigravityScriptEditor : IExternalCodeEditor
 {
-    const string EditorName = "Antigravity";
+    const string EditorName = "Antigravity IDE";
     static readonly string[] KnownPaths =
     {
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Antigravity IDE", "Antigravity IDE.exe"),
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Antigravity", "Antigravity.exe"),
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Antigravity.exe"),
+        "/Applications/Antigravity IDE.app/Contents/MacOS/Antigravity IDE",
         "/Applications/Antigravity.app/Contents/MacOS/Antigravity"
     };
 
@@ -57,8 +59,11 @@ public class AntigravityScriptEditor : IExternalCodeEditor
     {
         if (path.EndsWith(".app"))
         {
-            string executable = Path.Combine(path, "Contents", "MacOS", "Antigravity");
-            return File.Exists(executable) ? executable : path;
+            string executable = Path.Combine(path, "Contents", "MacOS", "Antigravity IDE");
+            if (File.Exists(executable)) return executable;
+            executable = Path.Combine(path, "Contents", "MacOS", "Antigravity");
+            if (File.Exists(executable)) return executable;
+            return path;
         }
         return path;
     }
@@ -158,7 +163,7 @@ public class AntigravityScriptEditor : IExternalCodeEditor
         }
         catch (Exception e)
         {
-            UnityEngine.Debug.LogError($"Failed to open Antigravity: {e.Message}");
+            UnityEngine.Debug.LogError($"Failed to open Antigravity IDE: {e.Message}");
             return false;
         }
     }
