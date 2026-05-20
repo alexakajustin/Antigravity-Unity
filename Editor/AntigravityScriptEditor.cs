@@ -69,6 +69,27 @@ public class AntigravityScriptEditor : IExternalCodeEditor
     }
 
     /// <summary>
+    /// Validates the installation path and falls back to a known existing path if it is invalid.
+    /// </summary>
+    private static string GetExistingInstallationPath(string path)
+    {
+        if (!string.IsNullOrEmpty(path) && (File.Exists(path) || Directory.Exists(path)))
+        {
+            return path;
+        }
+
+        foreach (var knownPath in KnownPaths)
+        {
+            if (File.Exists(knownPath) || Directory.Exists(knownPath))
+            {
+                return knownPath;
+            }
+        }
+
+        return path;
+    }
+
+    /// <summary>
     /// Returns true if the given file path is a code/text file that Antigravity should handle.
     /// </summary>
     private static bool IsSupportedFile(string filePath)
@@ -127,6 +148,7 @@ public class AntigravityScriptEditor : IExternalCodeEditor
         }
 
         string installation = CodeEditor.CurrentEditorInstallation;
+        installation = GetExistingInstallationPath(installation);
         
         string arguments;
         if (Directory.Exists(filePath))
@@ -145,10 +167,15 @@ public class AntigravityScriptEditor : IExternalCodeEditor
             Process process = new Process();
             
             // Handle macOS .app bundles specifically
-            if (installation.EndsWith(".app") && Application.platform == RuntimePlatform.OSXEditor)
+            if (Application.platform == RuntimePlatform.OSXEditor && (installation.EndsWith(".app") || installation.Contains(".app/")))
             {
+                string appPath = installation;
+                if (installation.Contains(".app/"))
+                {
+                    appPath = installation.Substring(0, installation.IndexOf(".app/") + 4);
+                }
                 process.StartInfo.FileName = "/usr/bin/open";
-                process.StartInfo.Arguments = $"-a \"{installation}\" -n --args {arguments}";
+                process.StartInfo.Arguments = $"-a \"{appPath}\" -n --args {arguments}";
             }
             else
             {
