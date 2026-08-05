@@ -11,18 +11,30 @@ using UnityEngine;
 public class AntigravityScriptEditor : IExternalCodeEditor
 {
     const string EditorName = "Antigravity IDE";
-    static readonly string[] KnownPaths =
+
+    /// <summary>
+    /// Relative paths to check under each drive root and special folder.
+    /// Covers both old ("Antigravity") and new ("Antigravity IDE") naming.
+    /// </summary>
+    static readonly string[] RelativeInstallPaths =
     {
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Antigravity IDE", "Antigravity IDE.exe"),
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Antigravity", "Antigravity.exe"),
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Antigravity.exe"),
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Antigravity IDE", "Antigravity IDE.exe"),
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Antigravity", "Antigravity.exe"),
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Antigravity IDE", "Antigravity IDE.exe"),
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Antigravity", "Antigravity.exe"),
-        "/Applications/Antigravity IDE.app/Contents/MacOS/Antigravity IDE",
-        "/Applications/Antigravity.app/Contents/MacOS/Antigravity",
+        Path.Combine("Antigravity IDE", "Antigravity IDE.exe"),
+        Path.Combine("Antigravity", "Antigravity.exe"),
+        Path.Combine("Antigravity", "Antigravity IDE.exe"),
+        Path.Combine("Programs", "Antigravity IDE", "Antigravity IDE.exe"),
+        Path.Combine("Programs", "Antigravity", "Antigravity.exe"),
+    };
+
+    /// <summary>
+    /// Absolute paths for macOS and Linux.
+    /// </summary>
+    static readonly string[] PlatformPaths =
+    {
+        "/Applications/Antigravity IDE.app",
+        "/Applications/Antigravity.app",
+        "/usr/local/bin/antigravity-ide",
         "/usr/local/bin/antigravity",
+        "/usr/bin/antigravity-ide",
         "/usr/bin/antigravity"
     };
 
@@ -48,14 +60,90 @@ public class AntigravityScriptEditor : IExternalCodeEditor
         ".cfg", ".ini", ".log", ".rsp", ".editorconfig",
     };
 
+    // Cache discovered installations so we don't scan drives on every access
+    static string[] s_cachedPaths;
+    static double s_lastDiscoveryTime = -1;
+    const double CacheLifetimeSeconds = 60.0;
+
     static AntigravityScriptEditor()
     {
         CodeEditor.Register(new AntigravityScriptEditor());
     }
 
-    private static bool IsAntigravityInstalled()
+    /// <summary>
+    /// Discovers all Antigravity IDE installations by scanning special folders,
+    /// all fixed drives (Windows), and platform-specific paths (macOS/Linux).
+    /// Results are cached for 60 seconds to avoid repeated disk I/O.
+    /// </summary>
+    private static string[] DiscoverInstallationPaths()
     {
-        return KnownPaths.Any(p => File.Exists(p) || Directory.Exists(p));
+        double now = EditorApplication.timeSinceStartup;
+        if (s_cachedPaths != null && (now - s_lastDiscoveryTime) < CacheLifetimeSeconds)
+        {
+            return s_cachedPaths;
+        }
+
+        var found = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        // --- Windows: check special folders ---
+        var specialFolders = new[]
+        {
+            Environment.SpecialFolder.LocalApplicationData,
+            Environment.SpecialFolder.ProgramFiles,
+#if !UNITY_EDITOR_OSX && !UNITY_EDITOR_LINUX
+            Environment.SpecialFolder.ProgramFilesX86,
+#endif
+        };
+
+        foreach (var folder in specialFolders)
+        {
+            string folderPath = Environment.GetFolderPath(folder);
+            if (string.IsNullOrEmpty(folderPath)) continue;
+
+            foreach (var relative in RelativeInstallPaths)
+            {
+                string fullPath = Path.Combine(folderPath, relative);
+                if (File.Exists(fullPath))
+                {
+                    found.Add(fullPath);
+                }
+            }
+        }
+
+        // --- Windows: scan ALL fixed drive roots (covers D:\, G:\, etc.) ---
+        if (Application.platform == RuntimePlatform.WindowsEditor)
+        {
+            try
+            {
+                foreach (var drive in DriveInfo.GetDrives())
+                {
+                    if (drive.DriveType != DriveType.Fixed || !drive.IsReady) continue;
+
+                    foreach (var relative in RelativeInstallPaths)
+                    {
+                        string fullPath = Path.Combine(drive.RootDirectory.FullName, relative);
+                        if (File.Exists(fullPath))
+                        {
+                            found.Add(fullPath);
+                        }
+                    }
+                }
+            }
+            catch (Exception) { /* DriveInfo can throw on inaccessible drives */ }
+        }
+
+        // --- macOS / Linux absolute paths ---
+        foreach (var path in PlatformPaths)
+        {
+            if (File.Exists(path) || Directory.Exists(path))
+            {
+                found.Add(path);
+            }
+        }
+
+        s_cachedPaths = found.ToArray();
+        s_lastDiscoveryTime = now;
+        return s_cachedPaths;
     }
 
     /// <summary>
@@ -75,7 +163,7 @@ public class AntigravityScriptEditor : IExternalCodeEditor
     }
 
     /// <summary>
-    /// Validates the installation path and falls back to a known existing path if it is invalid.
+    /// Validates the installation path and falls back to a discovered path if it is invalid.
     /// </summary>
     private static string GetExistingInstallationPath(string path)
     {
@@ -84,12 +172,10 @@ public class AntigravityScriptEditor : IExternalCodeEditor
             return path;
         }
 
-        foreach (var knownPath in KnownPaths)
+        var discovered = DiscoverInstallationPaths();
+        if (discovered.Length > 0)
         {
-            if (File.Exists(knownPath) || Directory.Exists(knownPath))
-            {
-                return knownPath;
-            }
+            return discovered[0];
         }
 
         return path;
@@ -111,19 +197,17 @@ public class AntigravityScriptEditor : IExternalCodeEditor
     {
         get
         {
-            var installations = new List<CodeEditor.Installation>();
-            foreach (var path in KnownPaths)
+            var paths = DiscoverInstallationPaths();
+            var installations = new CodeEditor.Installation[paths.Length];
+            for (int i = 0; i < paths.Length; i++)
             {
-                if (File.Exists(path) || Directory.Exists(path))
+                installations[i] = new CodeEditor.Installation
                 {
-                    installations.Add(new CodeEditor.Installation
-                    {
-                        Name = EditorName,
-                        Path = path
-                    });
-                }
+                    Name = EditorName,
+                    Path = paths[i]
+                };
             }
-            return installations.ToArray();
+            return installations;
         }
     }
 
@@ -227,4 +311,3 @@ public class AntigravityScriptEditor : IExternalCodeEditor
         return false;
     }
 }
-
