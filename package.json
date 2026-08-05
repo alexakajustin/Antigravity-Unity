@@ -11,5 +11,7 @@
     "code"
   ],
   "category": "Editor Extensions",
-  "dependencies": {}
+  "dependencies": {
+    "com.unity.ide.codeeditor": "1.0.3"
+  }
 }

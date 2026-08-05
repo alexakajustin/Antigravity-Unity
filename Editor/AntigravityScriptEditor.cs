@@ -16,8 +16,14 @@ public class AntigravityScriptEditor : IExternalCodeEditor
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Antigravity IDE", "Antigravity IDE.exe"),
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Antigravity", "Antigravity.exe"),
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Antigravity.exe"),
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Antigravity IDE", "Antigravity IDE.exe"),
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Antigravity", "Antigravity.exe"),
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Antigravity IDE", "Antigravity IDE.exe"),
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Antigravity", "Antigravity.exe"),
         "/Applications/Antigravity IDE.app/Contents/MacOS/Antigravity IDE",
-        "/Applications/Antigravity.app/Contents/MacOS/Antigravity"
+        "/Applications/Antigravity.app/Contents/MacOS/Antigravity",
+        "/usr/local/bin/antigravity",
+        "/usr/bin/antigravity"
     };
 
     /// <summary>
@@ -207,7 +213,7 @@ public class AntigravityScriptEditor : IExternalCodeEditor
 
     public bool TryGetInstallationForPath(string editorPath, out CodeEditor.Installation installation)
     {
-        if (editorPath.Contains("Antigravity"))
+        if (editorPath.IndexOf("antigravity", StringComparison.OrdinalIgnoreCase) >= 0)
         {
             installation = new CodeEditor.Installation
             {
